@@ -1,73 +1,181 @@
-# React + TypeScript + Vite
+# Influencia Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Modern React frontend for the Influencia influencer marketing platform. A beautiful, responsive UI for connecting brands with creators.
 
-Currently, two official plugins are available:
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+### For Creators
+- **Dashboard** - Overview of campaigns, earnings, and performance
+- **Profile Management** - Showcase your work and social media presence
+- **Social Media Integration** - Connect Instagram, YouTube, TikTok accounts
+- **Campaign Discovery** - Browse and apply to relevant brand campaigns
+- **Collaboration Management** - Track ongoing and past collaborations
+- **Analytics** - Detailed performance metrics and growth insights
+- **Earnings Tracker** - Monitor payments and revenue
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### For Brands
+- **Campaign Creation** - Create targeted influencer campaigns
+- **Creator Discovery** - Find perfect creators with AI-powered matching
+- **Creator Analysis** - Deep-dive into creator metrics and audience
+- **Collaboration Requests** - Send and manage partnership requests
+- **Campaign Analytics** - Track campaign performance and ROI
 
-## Expanding the ESLint configuration
+### Platform Features
+- **Responsive Design** - Works seamlessly on desktop and mobile
+- **Dark/Light Mode** - User-friendly theming
+- **Real-time Updates** - Live data synchronization
+- **Secure Authentication** - JWT-based auth with session management
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🛠️ Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **React 18** - UI Library
+- **TypeScript** - Type Safety
+- **Vite** - Build Tool
+- **Redux Toolkit** - State Management
+- **React Router v6** - Navigation
+- **Tailwind CSS** - Styling
+- **Axios** - HTTP Client
+- **Recharts** - Data Visualization
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 📋 Prerequisites
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js 18+
+- npm or yarn
+- Backend API running (see [influencia-backend](https://github.com/suhelali14/influencia-backend))
+
+## 🚀 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/suhelali14/influencia-frontend.git
+   cd influencia-frontend
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API URL
+   ```
+
+4. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open in browser**
+   ```
+   http://localhost:5173
+   ```
+
+## ⚙️ Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API URL | `http://localhost:3000/v1` |
+| `VITE_AI_API_URL` | AI Service URL | `http://localhost:5001` |
+
+## 📁 Project Structure
+
+```
+src/
+├── api/              # API client and service functions
+├── components/       # Reusable UI components
+│   ├── Landing/      # Landing page components
+│   ├── Layout/       # Layout components
+│   ├── Social/       # Social media components
+│   └── auth/         # Authentication components
+├── pages/            # Page components
+│   ├── Brand/        # Brand dashboard pages
+│   ├── Creator/      # Creator dashboard pages
+│   ├── Campaign/     # Campaign pages
+│   └── Legal/        # Legal pages
+├── store/            # Redux store and slices
+├── hooks/            # Custom React hooks
+├── lib/              # Utility functions
+├── config/           # Configuration files
+└── types/            # TypeScript type definitions
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🎨 Key Pages
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Public
+- `/` - Landing page
+- `/login` - User login
+- `/register` - User registration
+- `/privacy` - Privacy policy
+- `/terms` - Terms of service
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Creator Dashboard
+- `/creator/dashboard` - Creator home
+- `/creator/profile` - Profile management
+- `/creator/campaigns` - Browse campaigns
+- `/creator/collaborations` - Manage collaborations
+- `/creator/analytics` - Performance analytics
+- `/creator/earnings` - Earnings tracker
+- `/creator/social` - Social account connections
+
+### Brand Dashboard
+- `/brand/dashboard` - Brand home
+- `/brand/campaigns` - Campaign management
+- `/brand/create-campaign` - Create new campaign
+- `/brand/discover` - Find creators
+- `/brand/analytics` - Campaign analytics
+
+## 🧪 Scripts
+
+```bash
+# Development
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
+
+# Type check
+npm run type-check
 ```
+
+## 🐳 Docker
+
+```bash
+# Build image
+docker build -t influencia-frontend .
+
+# Run container
+docker run -p 80:80 influencia-frontend
+```
+
+## 📱 Screenshots
+
+### Landing Page
+Modern landing page with hero section, features, and testimonials.
+
+### Creator Dashboard
+Comprehensive dashboard with analytics, campaigns, and earnings overview.
+
+### Brand Campaign Creation
+Intuitive campaign creation flow with targeting options.
+
+## 🤝 Related Repositories
+
+- [influencia-backend](https://github.com/suhelali14/influencia-backend) - NestJS Backend API
+- [influencia-ai](https://github.com/suhelali14/influencia-ai) - AI Recommendation Service
+
+## 📄 License
+
+MIT License
