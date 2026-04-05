@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import DashboardLayout from '../../components/Layout/DashboardLayout'
+import Pagination from '../../components/Pagination'
 import {
   Users,
   TrendingUp,
@@ -22,18 +23,24 @@ export default function CreatorMatching() {
   const navigate = useNavigate()
   const [matches, setMatches] = useState<CreatorMatch[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(12)
+  const [totalCount, setTotalCount] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
     if (campaignId) {
       loadMatches()
     }
-  }, [campaignId])
+  }, [campaignId, page, pageSize])
 
   const loadMatches = async () => {
     try {
       setLoading(true)
-      const data = await matchingApi.findCreatorsForCampaign(campaignId!)
-      setMatches(data)
+      const result = await matchingApi.findCreatorsForCampaign(campaignId!, { page, pageSize })
+      setMatches(result.data)
+      setTotalCount(result.meta.totalCount)
+      setTotalPages(result.meta.totalPages)
     } catch (error) {
       console.error('Failed to load matches:', error)
       toast.error('Failed to load creator matches')
@@ -76,7 +83,7 @@ export default function CreatorMatching() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Perfect Creator Matches</h1>
         <p className="text-gray-600">
-          We've analyzed {matches.length} creators to find the best fits for your campaign
+          We've analyzed {totalCount} creators to find the best fits for your campaign
         </p>
       </div>
 
@@ -88,7 +95,7 @@ export default function CreatorMatching() {
               <Users className="w-6 h-6 text-purple-600" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{matches.length}</div>
+          <div className="text-2xl font-bold text-gray-900">{totalCount}</div>
           <div className="text-sm text-gray-600">Total Matches</div>
         </div>
 
@@ -288,6 +295,19 @@ export default function CreatorMatching() {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {!loading && totalPages > 0 && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => { setPageSize(size); setPage(1) }}
+          loading={loading}
+        />
+      )}
 
       {/* Actions */}
       <div className="mt-8 flex justify-between">

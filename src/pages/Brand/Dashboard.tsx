@@ -44,7 +44,7 @@ export default function BrandDashboard() {
       label: 'Total Reach',
       value: totalReach > 1000000 ? `${(totalReach / 1000000).toFixed(1)}M` : totalReach.toLocaleString(),
       icon: Eye,
-      change: '+24%',
+      change: totalReach > 0 ? `${totalReach.toLocaleString()} total` : '0',
       color: 'green',
     },
     {

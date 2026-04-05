@@ -14,7 +14,7 @@ import {
   Search,
   RefreshCw,
 } from 'lucide-react'
-// import { creatorsApi } from '../../api/creators'
+import { creatorsApi } from '../../api/creators'
 import toast from 'react-hot-toast'
 
 interface RecommendedCampaign {
@@ -60,114 +60,37 @@ export default function RecommendedCampaigns() {
   const loadRecommendations = async () => {
     try {
       setLoading(true)
-      // TODO: Uncomment when backend is ready
-      // const data = await creatorsApi.getRecommendedCampaigns()
-      // setCampaigns(data)
+      const data = await creatorsApi.getRecommendedCampaigns()
+      // Normalize response — backend may return { recommendations: [...] } or directly [...]
+      const list = Array.isArray(data) ? data : (data as any)?.recommendations || (data as any)?.campaigns || []
       
-      // Mock data for demonstration - would come from backend AI matching
-      const mockCampaigns: RecommendedCampaign[] = [
-        {
-          id: '1',
-          title: 'Spring Fashion Collection Launch',
-          description: 'Promote our new sustainable fashion line to eco-conscious millennials',
-          platform: 'instagram',
-          category: 'fashion',
-          budget: 10000,
-          start_date: '2024-02-01',
-          end_date: '2024-02-28',
-          brand: {
-            company_name: 'EcoFashion Co.',
-            website: 'https://ecofashion.com',
-          },
-          aiMatchScore: 99.2,
-          estimatedRoi: 285,
-          successProbability: 0.91,
-          matchReasons: [
-            'Your audience demographics align perfectly with target market',
-            'High engagement rate on similar fashion content',
-            'Strong track record with sustainable brands',
-            'Excellent content quality matches brand standards',
-          ],
-          requirements: '3 posts, 5 stories, 1 reel',
-          location: 'Remote',
+      // Map backend response to our interface
+      const mapped: RecommendedCampaign[] = list.map((item: any) => ({
+        id: item.id || item.campaign_id || String(Math.random()),
+        title: item.title || item.campaign?.title || 'Untitled Campaign',
+        description: item.description || item.campaign?.description || '',
+        platform: item.platform || item.campaign?.platform || 'instagram',
+        category: item.category || item.campaign?.category || 'General',
+        budget: Number(item.budget || item.campaign?.budget || 0),
+        start_date: item.start_date || item.campaign?.start_date || new Date().toISOString(),
+        end_date: item.end_date || item.campaign?.end_date || new Date().toISOString(),
+        brand: {
+          company_name: item.brand?.company_name || item.campaign?.brand?.company_name || 'Brand',
+          website: item.brand?.website || item.campaign?.brand?.website,
         },
-        {
-          id: '2',
-          title: 'Tech Product Review Campaign',
-          description: 'Showcase our latest wireless earbuds to tech enthusiasts',
-          platform: 'youtube',
-          category: 'technology',
-          budget: 8000,
-          start_date: '2024-02-05',
-          end_date: '2024-03-05',
-          brand: {
-            company_name: 'TechSound Inc.',
-            website: 'https://techsound.com',
-          },
-          aiMatchScore: 94.7,
-          estimatedRoi: 310,
-          successProbability: 0.87,
-          matchReasons: [
-            'Your tech review content has consistently high engagement',
-            'Audience matches our target demographic perfectly',
-            'Previous electronics campaigns performed exceptionally well',
-          ],
-          requirements: '1 dedicated review video + 2 shorts',
-        },
-        {
-          id: '3',
-          title: 'Fitness App Launch Campaign',
-          description: 'Promote our new AI-powered fitness tracking app',
-          platform: 'tiktok',
-          category: 'fitness',
-          budget: 6500,
-          start_date: '2024-02-10',
-          end_date: '2024-03-10',
-          brand: {
-            company_name: 'FitAI',
-            website: 'https://fitai.app',
-          },
-          aiMatchScore: 88.3,
-          estimatedRoi: 220,
-          successProbability: 0.82,
-          matchReasons: [
-            'Strong presence in fitness and wellness niche',
-            'High authenticity score with health content',
-            'Great engagement with workout-related posts',
-          ],
-          requirements: '5 TikToks showcasing app features',
-        },
-        {
-          id: '4',
-          title: 'Travel Destination Promotion',
-          description: 'Showcase the beauty of our island resort to adventure travelers',
-          platform: 'instagram',
-          category: 'travel',
-          budget: 12000,
-          start_date: '2024-02-15',
-          end_date: '2024-03-15',
-          brand: {
-            company_name: 'Paradise Resorts',
-            website: 'https://paradiseresorts.com',
-          },
-          aiMatchScore: 92.1,
-          estimatedRoi: 265,
-          successProbability: 0.89,
-          matchReasons: [
-            'Extensive travel content portfolio',
-            'Strong visual storytelling skills',
-            'High engagement with destination content',
-            'Perfect audience match for luxury travel',
-          ],
-          requirements: '4 posts, 10 stories, 2 reels',
-          location: 'Maldives (all-expenses paid)',
-        },
-      ]
+        aiMatchScore: Number(item.aiMatchScore || item.match_score || item.matchScore || 0),
+        estimatedRoi: Number(item.estimatedRoi || item.estimated_roi || item.estimatedROI || 0),
+        successProbability: Number(item.successProbability || item.success_probability || 0),
+        matchReasons: item.matchReasons || item.match_reasons || item.reasons || [],
+        requirements: item.requirements || item.campaign?.requirements || '',
+        location: item.location || item.campaign?.location,
+      }))
 
-      setCampaigns(mockCampaigns)
+      setCampaigns(mapped)
     } catch (error) {
       console.error('Failed to load recommendations:', error)
       toast.error('Failed to load campaign recommendations')
+      setCampaigns([])
     } finally {
       setLoading(false)
     }

@@ -32,18 +32,14 @@ FROM nginx:alpine AS production
 # Copy custom nginx config template
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 
-# Copy startup script
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-
 # Copy built files
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Verify files copied
-RUN ls -la /usr/share/nginx/html
+# Default port (platforms like Render inject PORT env var)
+ENV PORT=80
 
-# Expose port (Railway uses PORT env var)
+# Expose port
 EXPOSE 80
 
-# Start nginx with startup script
-CMD ["/start.sh"]
+# Start nginx — use envsubst to inject PORT, then start
+CMD ["/bin/sh", "-c", "envsubst '${PORT}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

@@ -1,5 +1,5 @@
 import api from './client'
-import type { Creator } from './creators'
+import type { Creator, PaginationParams, PaginatedResponse } from './creators'
 import type { Campaign } from './campaigns'
 
 export interface MatchAnalysis {
@@ -79,8 +79,19 @@ export interface Collaboration {
 }
 
 export const matchingApi = {
-  findCreatorsForCampaign: async (campaignId: string) => {
-    const { data } = await api.get<CreatorMatch[]>(`/matching/campaign/${campaignId}/creators`)
+  findCreatorsForCampaign: async (campaignId: string, params?: PaginationParams): Promise<PaginatedResponse<CreatorMatch>> => {
+    const query = new URLSearchParams()
+    if (params?.page) query.set('page', String(params.page))
+    if (params?.pageSize) query.set('pageSize', String(params.pageSize))
+    const qs = query.toString()
+    const { data } = await api.get<PaginatedResponse<CreatorMatch>>(
+      `/matching/campaign/${campaignId}/creators${qs ? `?${qs}` : ''}`
+    )
+    // Backward compat: if backend returns an array (old API), wrap it
+    if (Array.isArray(data)) {
+      const arr = data as unknown as CreatorMatch[]
+      return { data: arr, meta: { page: 1, pageSize: arr.length, totalCount: arr.length, totalPages: 1, hasNextPage: false, hasPreviousPage: false } }
+    }
     return data
   },
 

@@ -112,9 +112,46 @@ export default function CreatorAnalytics() {
       if (analyticsData) {
         setAnalytics(analyticsData)
       } else {
-        // Create analytics from social accounts if API fails
-        const mockAnalytics = generateAnalyticsFromAccounts(accounts)
-        setAnalytics(mockAnalytics)
+        // Build minimal analytics from social accounts if backend analytics API is unavailable
+        const totalFollowers = accounts.reduce((sum: number, acc: SocialAccount) => sum + Number(acc.followers_count || 0), 0)
+        const avgEngagement = accounts.length > 0 
+          ? accounts.reduce((sum: number, acc: SocialAccount) => sum + Number(acc.engagement_rate || 0), 0) / accounts.length 
+          : 0
+
+        setAnalytics({
+          total_followers: totalFollowers,
+          total_reach: Math.round(totalFollowers * 2.5),
+          avg_engagement_rate: avgEngagement,
+          platforms_connected: accounts.length,
+          total_campaigns: 0,
+          active_campaigns: 0,
+          completed_campaigns: 0,
+          total_earnings: 0,
+          pending_earnings: 0,
+          platforms: accounts.map((acc: SocialAccount) => ({
+            platform: acc.platform,
+            followers: acc.followers_count || 0,
+            engagement_rate: acc.engagement_rate || 0,
+            total_posts: acc.metrics?.posts || 0,
+            avg_likes: acc.metrics?.avg_likes || 0,
+            avg_comments: acc.metrics?.avg_comments || 0,
+            avg_views: acc.metrics?.avg_views || 0,
+            growth_rate: 0,
+            quality_score: (acc.metrics as any)?.quality_score || 0,
+            top_content: [],
+            trend: 'stable' as const,
+          })),
+          past_campaigns: [],
+          active_campaigns_list: [],
+          upcoming_campaigns: [],
+          monthly_earnings: [],
+          engagement_trend: [],
+          followers_trend: [],
+          top_content: [],
+          insights: accounts.length === 0
+            ? [{ type: 'info' as const, message: '🔗 Connect your social media accounts to unlock analytics' }]
+            : [{ type: 'info' as const, message: `📊 ${accounts.length} platform(s) connected with ${formatNumber(totalFollowers)} total followers` }],
+        })
       }
     } catch (err) {
       console.error('Failed to load analytics:', err)
@@ -122,112 +159,6 @@ export default function CreatorAnalytics() {
     } finally {
       setLoading(false)
     }
-  }
-
-  // Generate mock analytics from real social accounts
-  const generateAnalyticsFromAccounts = (accounts: SocialAccount[]): OverallAnalytics => {
-    const totalFollowers = accounts.reduce((sum, acc) => sum + Number(acc.followers_count || 0), 0)
-    const avgEngagement = accounts.length > 0 
-      ? accounts.reduce((sum, acc) => sum + Number(acc.engagement_rate || 0), 0) / accounts.length 
-      : 0
-
-    return {
-      // Flat structure to match backend
-      total_followers: totalFollowers,
-      total_reach: Math.round(totalFollowers * 2.5),
-      avg_engagement_rate: avgEngagement,
-      platforms_connected: accounts.length,
-      total_campaigns: 0,
-      active_campaigns: 0,
-      completed_campaigns: 0,
-      total_earnings: 0,
-      pending_earnings: 0,
-      
-      platforms: accounts.map(acc => ({
-        platform: acc.platform,
-        followers: acc.followers_count || 0,
-        engagement_rate: acc.engagement_rate || 0,
-        total_posts: acc.metrics?.posts || 0,
-        avg_likes: acc.metrics?.avg_likes || 0,
-        avg_comments: acc.metrics?.avg_comments || 0,
-        avg_views: acc.metrics?.avg_views || 0,
-        growth_rate: Math.random() * 10 - 2,
-        quality_score: (acc.metrics as any)?.quality_score || 50,
-        top_content: [],
-        trend: Math.random() > 0.5 ? 'up' : 'stable' as const,
-      })),
-      
-      past_campaigns: [],
-      active_campaigns_list: [],
-      upcoming_campaigns: [],
-      
-      monthly_earnings: [],
-      engagement_trend: generateEngagementTrends().map(t => ({ date: t.date, rate: t.engagement_rate })),
-      followers_trend: generateFollowersTrend(totalFollowers),
-      
-      top_content: [],
-      insights: generateAiInsights(accounts).map(msg => ({ type: 'info' as const, message: msg })),
-    }
-  }
-
-  // Generate followers trend
-  const generateFollowersTrend = (total: number) => {
-    const trends = []
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date()
-      date.setDate(date.getDate() - i)
-      trends.push({
-        date: date.toISOString().split('T')[0],
-        count: Math.max(0, total - (i * 5) + Math.floor(Math.random() * 10)),
-      })
-    }
-    return trends
-  }
-
-  // Generate mock engagement trends
-  const generateEngagementTrends = () => {
-    const trends = []
-    for (let i = 30; i >= 0; i--) {
-      const date = new Date()
-      date.setDate(date.getDate() - i)
-      trends.push({
-        date: date.toISOString().split('T')[0],
-        engagement_rate: 2 + Math.random() * 3,
-        followers: Math.floor(Math.random() * 50),
-        likes: Math.floor(Math.random() * 100),
-        comments: Math.floor(Math.random() * 20),
-        views: Math.floor(Math.random() * 500),
-      })
-    }
-    return trends
-  }
-
-  // Generate AI insights based on accounts
-  const generateAiInsights = (accounts: SocialAccount[]): string[] => {
-    const insights = []
-    
-    if (accounts.length === 0) {
-      insights.push("🔗 Connect your social media accounts to unlock AI-powered insights")
-    } else {
-      insights.push(`📊 You have ${accounts.length} platform(s) connected`)
-      
-      const totalFollowers = accounts.reduce((sum, acc) => sum + Number(acc.followers_count || 0), 0)
-      if (totalFollowers > 0) {
-        insights.push(`👥 Your combined audience reach is ${formatNumber(totalFollowers)} followers`)
-      }
-      
-      const youtubeAccount = accounts.find(a => a.platform === 'youtube')
-      if (youtubeAccount) {
-        insights.push(`🎬 Your YouTube channel has ${formatNumber(youtubeAccount.followers_count)} subscribers`)
-      }
-      
-      const avgEngagement = accounts.reduce((sum, acc) => sum + Number(acc.engagement_rate || 0), 0) / accounts.length
-      if (avgEngagement > 3) {
-        insights.push("🔥 Your engagement rate is above industry average!")
-      }
-    }
-    
-    return insights
   }
 
   // Sync all platforms

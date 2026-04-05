@@ -113,7 +113,9 @@ const campaignsSlice = createSlice({
       })
       .addCase(fetchCampaigns.fulfilled, (state, action) => {
         state.loading = false
-        state.campaigns = action.payload
+        // Handle paginated response: extract .data array
+        const payload = action.payload as any
+        state.campaigns = payload?.data ?? (Array.isArray(payload) ? payload : [])
       })
       .addCase(fetchCampaigns.rejected, (state, action) => {
         state.loading = false
@@ -126,7 +128,8 @@ const campaignsSlice = createSlice({
       })
       .addCase(fetchActiveCampaigns.fulfilled, (state, action) => {
         state.loading = false
-        state.activeCampaigns = action.payload
+        const payload = action.payload as any
+        state.activeCampaigns = payload?.data ?? (Array.isArray(payload) ? payload : [])
       })
       .addCase(fetchActiveCampaigns.rejected, (state, action) => {
         state.loading = false
@@ -152,7 +155,8 @@ const campaignsSlice = createSlice({
       })
       .addCase(fetchBrandCampaigns.fulfilled, (state, action) => {
         state.loading = false
-        state.campaigns = action.payload
+        const payload = action.payload as any
+        state.campaigns = payload?.data ?? (Array.isArray(payload) ? payload : [])
       })
       .addCase(fetchBrandCampaigns.rejected, (state, action) => {
         state.loading = false
@@ -196,7 +200,8 @@ const campaignsSlice = createSlice({
       })
       .addCase(searchCampaigns.fulfilled, (state, action) => {
         state.loading = false
-        state.campaigns = action.payload
+        const payload = action.payload as any
+        state.campaigns = payload?.data ?? (Array.isArray(payload) ? payload : [])
       })
       .addCase(searchCampaigns.rejected, (state, action) => {
         state.loading = false

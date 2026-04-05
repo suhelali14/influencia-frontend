@@ -31,19 +31,54 @@ export interface Creator {
   }
 }
 
+export interface PaginationParams {
+  page?: number
+  pageSize?: number
+  sortBy?: string
+  sortOrder?: 'ASC' | 'DESC'
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  meta: {
+    page: number
+    pageSize: number
+    totalCount: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
+}
+
 export const creatorsApi = {
   create: async (data: Partial<Creator>) => {
     const response = await api.post<Creator>('/creators', data)
     return response.data
   },
 
-  getAll: async () => {
-    const { data } = await api.get<Creator[]>('/creators')
+  getAll: async (params?: PaginationParams): Promise<PaginatedResponse<Creator>> => {
+    const query = new URLSearchParams()
+    if (params?.page) query.set('page', String(params.page))
+    if (params?.pageSize) query.set('pageSize', String(params.pageSize))
+    if (params?.sortBy) query.set('sortBy', params.sortBy)
+    if (params?.sortOrder) query.set('sortOrder', params.sortOrder)
+    const qs = query.toString()
+    const { data } = await api.get<PaginatedResponse<Creator>>(`/creators${qs ? `?${qs}` : ''}`)
+    // Backward compat: if backend returns an array (old API), wrap it
+    if (Array.isArray(data)) {
+      return { data: data as unknown as Creator[], meta: { page: 1, pageSize: data.length, totalCount: data.length, totalPages: 1, hasNextPage: false, hasPreviousPage: false } }
+    }
     return data
   },
 
-  search: async (query: string) => {
-    const { data } = await api.get<Creator[]>(`/creators/search?q=${query}`)
+  search: async (query: string, params?: PaginationParams): Promise<PaginatedResponse<Creator>> => {
+    const qs = new URLSearchParams({ q: query })
+    if (params?.page) qs.set('page', String(params.page))
+    if (params?.pageSize) qs.set('pageSize', String(params.pageSize))
+    const { data } = await api.get<PaginatedResponse<Creator>>(`/creators/search?${qs.toString()}`)
+    if (Array.isArray(data)) {
+      return { data: data as unknown as Creator[], meta: { page: 1, pageSize: data.length, totalCount: data.length, totalPages: 1, hasNextPage: false, hasPreviousPage: false } }
+    }
     return data
   },
 
